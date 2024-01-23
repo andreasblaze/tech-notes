@@ -9,7 +9,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'tech-notes',
-  tagline: 'Dinosaurs are cool',
+  tagline: 'DevOps/SRE Technical Notes',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -20,8 +20,8 @@ const config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'facebook', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  organizationName: 'andreasblaze', // Usually your GitHub org/user name.
+  projectName: 'tech-notes', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -44,8 +44,10 @@ const config = {
           sidebarPath: './sidebars.js',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
+          /*
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/andreasblaze/tech-notes/tree/main/',
+            */
         },
         blog: false,
         /*
@@ -78,15 +80,17 @@ const config = {
         },
         */
         items: [
+          /*
           {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
             label: 'Tutorial',
           },
+          */
           //{to: '/blog', label: 'Blog', position: 'left'},
           {
-            href: 'https://github.com/facebook/docusaurus',
+            href: 'https://github.com/andreasblaze/tech-notes/tree/main/',
             label: 'GitHub',
             position: 'right',
           },
@@ -94,6 +98,7 @@ const config = {
       },
       footer: {
         style: 'dark',
+        /*
         links: [
           {
             title: 'Docs',
@@ -104,6 +109,7 @@ const config = {
               },
             ],
           },
+          
           {
             title: 'Community',
             items: [
@@ -121,6 +127,7 @@ const config = {
               },
             ],
           },
+          
           {
             title: 'More',
             items: [
@@ -134,8 +141,10 @@ const config = {
               },
             ],
           },
+        
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        */
+        copyright: `Copyright © ${new Date().getFullYear()} AndreasBlaze, Inc. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
