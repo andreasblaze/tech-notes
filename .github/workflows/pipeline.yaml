@@ -28,9 +28,7 @@ jobs:
       run: npm run build
 
     - name: Deploy
-      uses: actions/labeler@v4
+      uses: peaceiris/actions-gh-pages@v3
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build
-        repository_name: andreasblaze/andreasblaze.github.io
-        publish_branch: main
