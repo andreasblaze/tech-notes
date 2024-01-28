@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunktech_notes=self.webpackChunktech_notes||[]).push([[89],{8954:e=>{e.exports=JSON.parse('{"title":"AWS","description":"AWS concepts.","slug":"/category/aws","permalink":"/category/aws","navigation":{"previous":{"title":"Home Page","permalink":"/"},"next":{"title":"IAM","permalink":"/aws/IAM"}}}')}}]);
