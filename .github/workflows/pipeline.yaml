@@ -28,7 +28,17 @@ jobs:
       run: npm run build
 
     - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build
+      run: |
+        git config --global user.name 'Andrii Bondariev'
+        git config --global user.email 'andreybond13@gmail.com'
+        git clone https://github.com/andreasblaze/andreasblaze.github.io.git && cd andreasblaze.github.io
+        git checkout main
+        # Safely remove the contents of the current directory without deleting the .git directory or other hidden files
+        find . -maxdepth 1 ! -name '.git' ! -name '.' ! -name '..' -exec rm -rf {} \;
+        # Copy build directory contents to the repo root
+        cp -a ../build/* ./
+        git add .
+        git commit -m "Deploy to GitHub Pages"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
