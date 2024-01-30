@@ -38,8 +38,8 @@ jobs:
         git config --global user.email 'andreybond13@gmail.com'
 
         # Clone the target repository using the PAT for authentication
-        git clone https://${{ env.PAT }}:x-oauth-basic@github.com/${{ env.TARGET_REPO }}.git
-        cd andreasblaze.github.io
+        git clone https://${{ env.PAT }}:x-oauth-basic@github.com/${{ env.TARGET_REPO }}.git temp_repo
+        cd temp_repo
         git checkout ${{ env.TARGET_BRANCH }}
 
         # Clean out existing contents
@@ -51,4 +51,5 @@ jobs:
         # Commit and push changes to the target repository
         git add .
         git commit -m "Deploy to GitHub Pages"
-        git push
+        git push origin ${{ env.TARGET_BRANCH }}
+
