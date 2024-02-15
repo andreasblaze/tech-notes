@@ -5,8 +5,5 @@ slug: /
 
 # Home Page
 
-## SRE
-
-## DevOps
-
-## CI/CD
+## SRE/DevOps/Platform Engineering
+![RoadMap](./roadmap-boy.png)

@@ -1,0 +1,8 @@
+{
+  "label": "CI/CD",
+  "position": 8,
+  "link": {
+    "type": "generated-index",
+    "description": "CI/CD concepts and tools"
+  }
+}
