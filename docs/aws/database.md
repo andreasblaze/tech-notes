@@ -16,6 +16,8 @@ sidebar_position: 6
 Преимущество использования **RDS** вместо самостоятельного развертывания на **EC2** состоит в том, что нам не надо самостоятельно развертывать базу данных, ее обновлять, патчить, следить за ее состоянием, бекапить - это все будет производится на стороне AWS. **Мы даже не сможем подключиться по SSH и нстансам баз данных.**
 > Но есть такое понятие как **RDS Custom**, которое распространяется на **Managed Oracle** и **Microsoft SQL Server Database**. Это понятие подразумивает возможность настройки **SSH** соединения, конфигурировать настройки, устанавливать патчи - лучше все эти настройки выполнять при отключеном режиме **RDS Automation** и сделать снепшот.
 
+! You can not create encrypted Read Replicas from an unencrypted RDS DB instance.
+
 :::
 
 ### Storage Auto Scaling
@@ -56,6 +58,12 @@ Use Case:
 ## Amazon Aurora
 СУБД от Amazon, не open-source решение. Имеет совместимость с Postgres и MySQL. Лучше всем оптимизирована под AWS, что дает ей 5х прирост в производительности по сравнению с MySQL и 3х с Postgres на RDS.
 Также есть плюшка 6 копиях наших данных среди 3-х AZ (4 копии из 6 для записи, 3 копии из 6 для чтения, self healing with peer-to-peer replication + Shared storage Volume). Быстрый фейловер в 30 секунд. Поддерживает Cross Region Replication. Имеет более обширный мониторинг из коробки.
+:::info
+Если мы хотим быть уверены, что у вас есть реплика нашей БД, доступной в другом регионе AWS, если в вашем основном регионе AWS произойдет авария, то стоит использовать **Aurora Global Database**.
+The maximum retention is only 35 days for **Automated Backups**.
+To store long-term backups for your Aurora database for disaster recovery and audit purposes - perform **On Demand Backups**.
+
+:::
 
 ### Aurora DB Cluster
 Есть мастер БД с DNS 'Writer Endpoint - Pointing to the master' (чтобы при фейловере приложения продолжали запись), что записывает в Shared storage Volu,e (Auto Expanding from 10G to 128TB). Есть коллекция рид реплик, что находятся под Auto Scaling с общим DNS 'Reader Endpoint - Connection Load Balancing', чтобы приложения не теряли связь с рид репликами.

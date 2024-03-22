@@ -4,28 +4,96 @@ sidebar_position: 2
 
 # CMD's
 
+## SSH
+```bash
+ssh -l andriibondariev@prod.example.com 10.20.100.200
+```
+```bash
+scp -r /* root@10.20.100.200:/usr/lib/zabbix/externalscripts
+```
+или
+```bash
+scp -i myAmazonKey.pem script.sh ubuntu@3.135.180.100:/
+```
+### SSH and Git connectivity
+Создайте ключ SSH: если у вас еще нет ключа SSH или вы хотите создать новый специально для этой цели.
+```bash
+ssh-keygen -t rsa -b 4096 -C "andrii.bondariev@example.com"
+```
+
+Укажите местоположение во время генерации ключа:
+```bash
+/c/Users/AndreasDesktop/.ssh/example
+```
+
+Добавьте Public Key на сервер Git:
+```bash
+cat /c/Users/AndreasDesktop/.ssh/example.pub
+```
+
+Убедитесь, что ssh-агент запущен:
+```bash
+eval $(ssh-agent -s)
+```
+
+Список ключей агента SSH:
+```bash
+ssh-add -L
+```
+
+Убедитесь, что ваш ключ example указан в списке. Если нет, добавьте еще раз:
+```bash
+ssh-add /c/Users/AndreasDesktop/.ssh/example
+```
+
+Проверьте прямое SSH-соединение:
+```bash
+ssh -T git@git.example.net
+```
+
 ## Перенаправление вывода/ввода
-```bash
 
-```
-```bash
+1. **< file**: Используйте `file` в качестве источника стандартного ввода.
+   ```bash
+   sort < unsorted.txt
+   ```
+   Эта команда отсортирует содержимое `unsorted.txt`.
 
-```
-```bash
+2. **> file**: Прямой стандартный вывод в `file`. Создайте файл, если он не существует, или перезапишите его, если он существует.
+   ```bash
+   echo "Hello, Linux!" > greetings.txt
+   ```
+   Это напишет "Hello, Linux!" в `greetings.txt`, перезаписать любой существующий контент.
 
-```
-```bash
+3. **2> file**: Направьте стандартную ошибку на `file`. Создайте файл, если он не существует, или перезапишите его, если он существует.
+   ```bash
+   grep "pattern" missingfile.txt 2> errors.txt
+   ```
+   Это попытка найти "pattern" в `missingfile.txt` и записывает все сообщения об ошибках в `errors.txt`.
 
-```
-```bash
+4. **>> file**: Добавить стандартный вывод в `file`. Создайте файл, если он не существует, или добавьте к нему, если он существует.
+   ```bash
+   echo "Welcome back!" >> greetings.txt
+   ```
+   Это добавит "Welcome back!" в конец `greetings.txt` без перезаписи существующего контента.
 
-```
-```bash
+5. **2>> file**: Добавить стандартную ошибку к `file`. Создайте файл, если он не существует, или добавьте к нему, если он существует.
+   ```bash
+   grep "pattern" missingfile.txt 2>> errors.txt
+   ```
+   Это попытка найти "pattern" в `missingfile.txt` еще раз и добавляет все сообщения об ошибках в `errors.txt`.
 
-```
-```bash
+6. **&> file** or **>& file**: Перенаправьте стандартный вывод и стандартную ошибку на `file`.
+   ```bash
+   ls -l /nonexistentdirectory &> output.txt
+   ```
+   Both the output (if any) and the error message from listing `/nonexistentdirectory` will be written to `output.txt`.
 
-```
+   Или используя другие обозначения:
+   ```bash
+   ls -l /nonexistentdirectory > output.txt 2>&1
+   ```
+   Это делает то же самое, что и предыдущая команда, но для достижения перенаправления используется другой синтаксис.
 
 ## Logs
 ```bash
