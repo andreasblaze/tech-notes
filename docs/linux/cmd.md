@@ -15,6 +15,22 @@ scp -r /* root@10.20.100.200:/usr/lib/zabbix/externalscripts
 ```bash
 scp -i myAmazonKey.pem script.sh ubuntu@3.135.180.100:/
 ```
+### Место, где находится конфиг SSH
+```bash
+/etc/ssh/ssh_config
+```
+### Логин с указанием приватного ключа, юзернейма и хоста
+```bash
+ssh -i ~/.ssh/my_key -l myusername 10.20.100.200
+```
+### Логин под рутом с указанием юзернейма
+```bash
+ssh -i andriibondariev root@10.20.134.204
+```
+### Создание публичного ключа из приватного с указанием коммента
+```bash
+ssh-keygen -y -f /path/to/your/private/key -C "new-comment" > new_public_key.pub
+```
 ### SSH and Git connectivity
 Создайте ключ SSH: если у вас еще нет ключа SSH или вы хотите создать новый специально для этой цели.
 ```bash
@@ -226,6 +242,11 @@ find / -type f -name '*_workers.rb'
 ```bash
 
 ```
+### tar
+```bash
+
+```
+
 ## Simple Network Management Protocol (SNMP)
 ```bash
 snmpwalk -v3 -u ncread -l authNoPriv -a MD5 -A {Authentication passphras} {mx...host}
@@ -338,6 +359,22 @@ Server: cloudflare
 curl myip.wtf/text
 ```
 >Узнать Public IP
+
+### ip
+```bash
+
+```
+
+### netstat
+```bash
+
+```
+
+### wget
+```bash
+
+```
+
 ## Permissions
 ### chmod
 ```bash
@@ -351,14 +388,14 @@ chown
 ```bash
 chgrp
 ```
-
+### usermod 
 ```bash
 usermod -aG docker jenkins
 // Allow Jenkins users to access the docker socket
 ```
-
+### set
 ```bash
-
+set +x -eo pipefail node /usr/app/tfrunner/tfrunner.js apply -parallelism=10 tfplan_c357197a7543 2>&1 | tee 1b4e61512783.log
 ```
 
 ```bash
@@ -376,3 +413,96 @@ usermod -aG docker jenkins
 ```bash
 
 ```
+## Process management:
+
+### &&
+```bash
+
+```
+
+### kill
+```bash
+
+```
+
+### ps
+```bash
+
+```
+
+## System control:
+
+### poweroff
+```bash
+
+```
+
+### restart
+```bash
+
+```
+
+## User management:
+
+### whoami
+```bash
+
+```
+
+## Creating and exporting environment variables:
+
+### env
+```bash
+
+```
+
+### export
+```bash
+
+```
+
+### printenv
+```bash
+
+```
+
+### source
+```bash
+
+```
+
+## Application and process management:
+
+### which
+```bash
+
+```
+
+### yum
+```bash
+
+```
+
+## Console and output management, working with data sent to stdout or displayed in a terminal window:
+
+### cat
+```bash
+
+```
+
+### clear
+```bash
+
+```
+
+### echo
+```bash
+
+```
+
+### top
+```bash
+
+```
+
+## Troubleshooting
