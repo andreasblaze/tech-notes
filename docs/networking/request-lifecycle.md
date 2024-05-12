@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 4
 ---
 # What happens when you type google.com in your browser and press Enter?
 Как только нажимается Enter, браузер распознает «google.com» как доменное имя и попытается сопоставить его с правильным сервером, чтобы предоставить правильный контент.
