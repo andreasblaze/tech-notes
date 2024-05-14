@@ -49,6 +49,14 @@ mtr -rw example.com
 ```bash
 mtr --report www.google.com
 ```
+## nslookup
+```bash
+
+```
+## dig
+```bash
+dig @8.8.8.8 +short TXT mailout.spacemail.com "v=spf1 include:spf-spacemail.jellyfish.systems -all"
+```
 
 ## Networking Errors & solutions in Linux
 ### Connection Refused

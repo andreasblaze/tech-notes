@@ -443,3 +443,7 @@ set +x -eo pipefail node /usr/app/tfrunner/tfrunner.js apply -parallelism=10 tfp
 ```
 
 ## Troubleshooting
+Проверить SSL сертификат эндпоинта:
+```bash
+openssl s_client -connect <domain_name>:<port> -showcerts
+```
