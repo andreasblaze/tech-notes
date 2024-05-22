@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 2
 ---
 # DNS
 **DNS** (*Domain Name System*) является телефонной книгой Интернета, преобразует human-readable доменные имена в IP-адреса, позволяя браузерам загружать интернет-ресурсы.
