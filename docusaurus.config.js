@@ -106,7 +106,7 @@ const config = {
             </svg>`,
           },
           {
-            href: 'https://www.linkedin.com/in/and-bondarev/',
+            href: 'https://www.linkedin.com/in/andrii-bondariev/',
             position: 'right',
             className: 'navbar-icon',
             'aria-label': 'LinkedIn',
