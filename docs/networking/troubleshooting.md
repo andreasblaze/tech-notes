@@ -76,3 +76,46 @@ dig @8.8.8.8 +short TXT mailout.spacemail.com "v=spf1 include:spf-spacemail.jell
 Аналогично «Нет маршрута к хосту» означает невозможность добраться до места назначения.
 - Причина: неправильная конфигурация сети или неправильный IP-адрес.
 - Решение: проверьте конфигурацию IP и настройки сети.
+
+## Ports
+### Opening a Port
+```bash
+sudo ufw allow <port_number>
+```
+or
+```bash
+firewall-cmd --add-port=<port_number>/tcp
+```
+or
+```bash
+iptables -A INPUT -p tcp --dport <port_number> -j ACCEPT
+```
+### List All Open Ports
+```bash
+netstat -lntu
+```
+or
+```bash
+ss -lntu
+```
+-    all listening sockets (`-l`)
+-    the port number (`-n`)
+-    TCP ports (`-t`)
+-    UDP ports (`-u`)
+### Check Port
+```bash
+ls | nc -l -p <port_number>
+```
+or
+```bash
+telnet localhost <port_number>
+```
+or
+```bash
+nmap localhost -p <port_number>
+```
+### To Check The Availability of a Port on a Remote Server
+```bash
+cat < /dev/tcp/<server-ip-or-dns>/<port>
+```
+> Если порт открыт: команда подключится к `example.com` через порт `80` (порт HTTP). Если соединение успешное, оно будет ожидать ввода или вывода. При необходимости вы можете отправлять HTTP-запросы или другие данные.
