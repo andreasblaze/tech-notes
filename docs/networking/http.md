@@ -65,7 +65,7 @@ import TabItem from '@theme/TabItem';
     <p><b>425 Too Early</b></p>
     <p><b>426 Upgrade Required</b></p>
     <p><b>428 Precondition Required</b></p>
-    <p><b>429 Too Many Requests</b></p>
+    <p><b>429 Too Many Requests</b>: когда на фаерволле установлены рейт лимит правила и мы их нарушаем</p>
     <p><b>431 Request Header Fields Too Large</b></p>
     <p><b>449 Retry With</b></p>
     <p><b>451 Unavailable For Legal Reasons</b></p>
