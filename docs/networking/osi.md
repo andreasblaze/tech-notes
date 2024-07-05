@@ -25,6 +25,8 @@ sidebar_position: 1
 
 ![CIDR Octets](./img/CIDR_Octets.png)
 
+https://aws.amazon.com/what-is/cidr/
+
 ### Public vs Private IP
 **IANA** (*Internet Assigned Numbers Authority*) установили определенные блоки адресов **IPv4** для использования частных (**LAN**) и общедоступных (**Интернет**) адресов:
 - Private IP: 
