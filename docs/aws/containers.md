@@ -74,7 +74,9 @@ sidebar_position: 13
 - **Fargate Launch Mode**: если мы хотим видеть `Serverless` контейнеры у себя в `EKS Cluster`.
 
 :::info
-K8s Pod = ECS Task.
+`K8s Pod` = `ECS Task`.
+
+**EKS** - *managed* K8s, снимает головняк с администрированием `Control Plane`, мастер ноды.
 
 Если нужно заэкспоузить (выставить) `EKS Service/Kubernetis Service`, то нужно настроить `Private Load Balancer` или `Private Load Balancer` для коммуникации с Web.
 :::

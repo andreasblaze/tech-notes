@@ -78,3 +78,34 @@ Host *
 This configuration sends a keep-alive message every 60 seconds and allows up to 120 missed messages before disconnecting.
 
 Using screen or tmux: These tools allow you to run sessions that continue even if you disconnect or log out from the SSH session. Start a screen or tmux session before running your script, which you can then detach from and reattach to later.
+
+## SSH Config
+```bash
+Include /etc/ssh/ssh_config.d/*.conf
+Host *
+SendEnv LANG LC_*
+    HashKnownHosts yes
+    GSSAPIAuthentication yes
+
+Host jump *jump-host-name*
+    HostName *jump-host-name*
+    User username@corporation
+    IdentityFile ~/.ssh/aduser
+    #Add connection multiplexing
+    ControlMaster auto
+    ControlPath ~/.ssh/%u@%h:%p
+    ControlPersist 10m
+ 
+Host !jump !*jump-host-name* *
+    # some settings
+    # some settings
+    ProxyJump jump
+
+
+Host *host-name*
+    ProxyJump jump
+    HostName *ip-address*
+    User username@corporation
+    IdentityFile /root/.ssh/aduser
+
+```
