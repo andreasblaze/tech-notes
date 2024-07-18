@@ -97,6 +97,12 @@ srw-rw-rw- 1 root       root          0 Dec  8 13:31 sdp
 srwxr-xr-x 1 root       root          0 Dec  8 13:32 vmnat.5546
 ```
 
+## File Descriptors
+stdin, stdout, stderr
+
+## SIGNAL's
+SIGABRT
+
 ## File permissions
 - Пользователей можно разделить на три категории:
   - User – владелец файла, создавший файл;

@@ -28,10 +28,20 @@ kubectl get svc -n <namespace>
 ```bash
 kubectl get svc
 ```
+## kubectl get events
+```bash
+kubectl get events
+```
+
 ## kubectl describe svc
 ```bash
 kubectl describe svc <service-name> -n <namespace>
 ```
+## kubectl describe pod
+```bash
+kubectl describe pod
+```
+
 ## kubectl get networkpolicy
 ```bash
 kubectl get networkpolicy -n <namespace>
@@ -64,4 +74,12 @@ kubectl apply -f <policy-file>.yaml
 ```bash
 
 ```
+## kubectl top node
+```bash
+kubectl top node
+```
 
+## kubectl top pod
+```bash
+kubectl top pod
+```
