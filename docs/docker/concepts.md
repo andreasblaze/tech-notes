@@ -66,19 +66,148 @@ sidebar_position: 1
 :::
 
 ### Networks
+**Docker Networks** нацелено на управление связью между `Docker Container's` и внешним миром. Когда вы запускаете контейнер, вы можете подключить его к одной или нескольким сетям.
+- **Изоляция**: по умолчанию Docker обеспечивает сетевую изоляцию между различными контейнерами и группами контейнеров.
+- **Связь**: контейнеры в одной сети могут взаимодействовать друг с другом, используя имена контейнеров вместо IP-адресов, что упрощает обнаружение служб.
+- **Кастомные сети**: пользователи могут определять свои собственные сети (с помощью пользовательских сетевых драйверов) для лучшего управления сетевой средой, включая определение подсетей, адресов шлюзов и т. д.
+```bash
+docker network create [OPTIONS] NETWORK       # Create a new network
+docker network ls                            # List all networks
+docker network rm NETWORK                    # Remove one or more networks
+docker network connect NETWORK CONTAINER     # Connect a container to a network
+docker network disconnect NETWORK CONTAINER  # Disconnect a container from a network
+```
 
+### Container's Filesystem
+Когда создается контейнер Docker, он использует файловую систему Union File System (**UFS**), которая состоит из следующих слоев:
+- **Read-only Base Image Layer(s)**: это слои `Docker Image`, из которых создается `Docker Container`. Каждый слой соответствует набору изменений или дополнений файлов, сделанных в процессе сборки образа.
+- **Writable Container Layer**: это тонкий записываемый слой, добавляемый поверх слоев только для чтения при запуске `Docker Container`. Все изменения, внесенные в файловую систему во время выполнения контейнера, такие как добавление, изменение или удаление файлов, записываются в этот слой.
+:::info
+Если вы явно не создаете и не используете `Docker Volume's` или не привязываете монтирования, Docker сохраняет данные контейнера в **Writable Container Layer**. Это эфемерное место хранения, которое существует как часть самого контейнера.
+:::
 
 ### Volumes
+Тома используются для сохранения данных, созданных и используемых контейнерами Docker. Они особенно важны для постоянных или общих данных и могут управляться Docker более безопасно и эффективно по сравнению с привязкой монтирования.
 
+Примеры использования томов Docker:
+- **Databases**: для таких приложений, как MySQL, PostgreSQL или MongoDB, использование томов гарантирует, что данные базы данных будут сохраняться после окончания срока службы контейнера, что необходимо для предотвращения потери данных во время обновлений и повторных развертываний.
+- **Web Applications**: сохраняйте логи, пользовательские загрузки и данные сеансов на томах, чтобы гарантировать сохранение этой информации в случае перезапуска контейнера веб-сервера.
+- **Development Environments**: используйте тома для хранения исходного кода или создания артефактов, к которым должны обращаться несколько контейнеров или которые должны пережить перезапуски контейнера во время циклов разработки.
+```bash
+docker volume create [OPTIONS] [VOLUME]   # Create a volume
+docker volume ls                         # List volumes
+docker volume rm VOLUME                  # Remove one or more volumes
+docker volume inspect VOLUME             # Display detailed information on one or more volumes
+```
+
+Пример: Контейнер с хранилищем по умолчанию. Если вы создаете и запускаете контейнер без указания томов или привязки монтирований:
+```bash
+docker run -d --name my-container nginx
+```
+- Любые данные, записанные процессом `nginx`, будут сохранены в **Writable Container Layer**.
+- Если вы удалите контейнер с помощью `docker rm my-container`, все данные внутри **Writable Container Layer** будут потеряны навсегда.
+
+Использование `Docker Volume's` для предотвращения потери данных:
+```bash
+docker run -d --name my-container -v my-volume:/data nginx
+```
+- Здесь Docker будет хранить данные в именованном томе `my-volume`, который сохранится даже при удалении контейнера, что предотвращает потерю данных.
+
+### Docker Volumes vs. Bind Mounts
+**Docker Volumes**:
+- Управляются Docker. Docker полностью контролирует тома, включая их создание, удаление и миграцию.
+- Лучше подходят для использования в производстве, поскольку они более надежны, поддерживают больше параметров конфигурации и отделены от базовой файловой системы хоста.
+- Более безопасны, так как демон Docker может накладывать дополнительные ограничения на то, как осуществляется доступ к томам или какие параметры доступны.
+
+**Bind Mounts**:
+- Прямое сопоставление файла или дирректории хоста с контейнером. Контейнер напрямую использует файловую систему хоста.
+- Проще настроить для простых приложений или для быстрого тестирования, так как вы просто указываете путь на хосте.
+- Менее безопасны, так как контейнер имеет прямой доступ к файловой системе хоста, и любые изменения немедленно отражаются на хосте и наоборот.
+- Непереносимы, так как существование и местоположение данных тесно связаны с файловой системой хоста.
+
+**Docker Volumes** если вам нужно надежное, безопасное и переносимое управление данными в ваших средах Docker.
+
+**Bind Mounts** может использоваться для более простых, менее критических задач, где необходим прямой доступ к файловой системе хоста.
 
 ### Plugins
+Плагины расширяют функциональность Docker. Они предоставляют дополнительные возможности, такие как кастомные сетевые драйверы, драйверы хранилищ/томов или даже новые протоколы аутентификации. Это позволяет Docker быть более гибким и интегрироваться с более широким спектром инфраструктур.
+
+*Пример использования*: использование плагина тома для подключения к клауд провайдеру или использование сетевого плагина для интеграции с кастомной или собственной сетевой средой.
+```bash
+docker plugin install [OPTIONS] PLUGIN[:TAG]  # Install a plugin
+docker plugin ls                             # List installed plugins
+docker plugin enable PLUGIN                  # Enable a plugin
+docker plugin disable PLUGIN                 # Disable a plugin
+docker plugin rm PLUGIN                      # Remove a plugin
+```
 
 ## Docker inspect 
-
+Команда `docker inspect` — это мощный инструмент в Docker, который предоставляет подробную информацию об объектах Docker, таких как контейнеры, образы, тома, сети и т. д. Эта команда извлекает низкоуровневую информацию в формате JSON, что делает ее бесценной для отладки и сценариев автоматизации, которым необходимо понимать конфигурацию и состояние объектов Docker.
+```bash
+docker inspect my-container
+docker inspect ubuntu:latest
+docker inspect --format '{{ .NetworkSettings.IPAddress }}' my-container
+docker inspect container1 container2 my-volume
+```
 
 ## Docker Inside Docker (DinD)
-Эта настройка включает запуск `Docker Daemon` внутри `Docker Container`.
+Эта настройка включает запуск `Docker Daemon` внутри `Docker Container`. Такая необходимость обычно возникает, когда вы хотите создавать и управлять `Docker Image's` и `Docker Container's` непосредственно из `Jenkins Build Job`, которое само может выполняться внутри `Docker Container`. 
 
+В тех контейнерах можно будет накатывать свои библиотеки и вы хотите создавать образы Docker как часть процесса непрерывной интеграции, вам понадобится способ запустить Docker внутри контейнера CI, к примеру.
+
+Вам понадобится агент **Jenkins**, который может запустить **Docker-in-Docker**. Это подразумевает создание кастомного `Docker Image`, который включает как `Jenkins Agent`, так и сам `Docker Daemon`.
+```dockerfile
+# Use an official Jenkins agent base image with Docker pre-installed
+FROM jenkins/inbound-agent:latest
+
+# Install Docker CLI
+USER root
+RUN apt-get update && \
+    apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
+    apt-get update && \
+    apt-get install -y docker-ce docker-ce-cli containerd.io
+
+# Give Jenkins user permissions to run Docker
+RUN usermod -aG docker jenkins
+
+# Switch back to the Jenkins user
+USER jenkins
+```
+```jenkinsfile
+pipeline {
+    agent none // No global agent, define per stage
+
+    stages {
+        stage('Build Docker Image') {
+            agent {
+                docker {
+                    image 'my-jenkins-agent-with-docker:latest'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
+            steps {
+                script {
+                    // Commands to build Docker images
+                    sh 'docker build -t my-image:latest .'
+                }
+            }
+        }
+    }
+}
+```
+- Директива агента указывает на использование кастомного `Docker Image`, созданного ранее.
+- Контейнер агента Jenkins будет совместно использовать сокет Docker с хостом (/var/run/docker.sock). Этот подход, известный как «Docker-outside-of-Docker» (DooD), позволяет избежать некоторых подводных камней настоящего Docker-in-Docker, при этом по-прежнему позволяя выполнять команды Docker в конвейере Jenkins.
 
 ## Docker Outside of Docker (DooD)
+«Docker-outside-of-Docker» (DooD) — это концепция, в которой вы запускаете команды Docker внутри `Docker Container`, но вместо запуска полного `Docker Daemon` внутри контейнера (как в Docker-in-Docker или DinD) вы получаете доступ к `Docker Daemon` хост-машины изнутри `Docker Container`. Обычно это достигается путем монтирования сокета Docker из хоста в контейнер. Такой подход позволяет контейнерам использовать демон Docker хоста для создания, управления и запуска других контейнеров Docker напрямую.
 
+Вот базовая настройка для `Docker-outside-of-Docker`:
+
+- **Docker Socket**: `Docker Daemon` на хосте прослушивает сокет Unix (/var/run/docker.sock) на предмет запросов API. По умолчанию только локальные процессы с `root` или членством в группе docker могут взаимодействовать с этим сокетом.
+- **Монтирование сокета**: Когда вы запускаете контейнер и хотите, чтобы он мог взаимодействовать с `Docker Daemon` хоста, вы монтируете этот сокет Docker внутри `Docker Container`. Это позволяет процессам внутри `Docker Container` взаимодействовать с `Docker Daemon`, как если бы они работали на хосте.
+- **Разрешения для контейнера**: Контейнер не обязательно должен быть запущен в привилегированном режиме, но пользователю внутри контейнера нужны соответствующие разрешения для взаимодействия с сокетом Docker. Часто это управляется путем добавления пользователя внутри контейнера в группу docker.
+```bash
+docker run -it -v /var/run/docker.sock:/var/run/docker.sock docker:latest sh
+```
