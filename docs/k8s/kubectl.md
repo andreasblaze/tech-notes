@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # kubectl
@@ -8,6 +8,10 @@ sidebar_position: 1
 Чтобы убедиться, что файл `kubeconfig` обновлен правильно, вы можете перечислить доступные контексты:
 ```bash
 kubectl config get-contexts
+```
+Чтобы перейти на необходимый контекст:
+```bash
+kubectl config use-context
 ```
 ## kubectl get nodes
 ```bash

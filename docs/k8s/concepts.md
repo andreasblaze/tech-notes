@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Kubernetes Concepts
 
 ## Container Runtime Interface (CRI)

@@ -1,3 +1,7 @@
+---
+sidebar_position: 3
+---
+
 ```jsx title="~/.kube/config"
 apiVersion: v1
 clusters:
