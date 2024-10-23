@@ -1,7 +1,15 @@
 ---
 sidebar_position: 3
 ---
-
+## kubectl config
+Чтобы убедиться, что файл `kubeconfig` обновлен правильно, вы можете перечислить доступные контексты:
+```bash
+kubectl config get-contexts
+```
+Чтобы перейти на необходимый контекст:
+```bash
+kubectl config use-context
+```
 ```jsx title="~/.kube/config"
 apiVersion: v1
 clusters:

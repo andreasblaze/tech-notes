@@ -3,6 +3,33 @@ sidebar_position: 1
 ---
 # CMD
 
+## Переименование коммитов
+## amend
+Если вам нужно изменить только последнее сообщение коммита:
+```bash
+git commit --amend
+```
+Save and Close the Editor
+Push the Amended Commit:
+```bash
+git push --force-with-lease
+```
+
+### rebase
+```bash
+git rebase -i HEAD~5
+```
+Потом надо будет поменять `pick` на `reword` для каждого коммита.
+
+После редактирования **Git** завершит `rebase`. Если возникнут конфликты, **Git** остановится и позволит вам разрешить их. После разрешения конфликтов (если таковые имеются) выполните:
+```bash
+git rebase --continue
+```
+После надо принудительно отправить изменения в удаленный репозиторий:
+```bash
+git push --force-with-lease
+```
+
 ## git remote
 ```bash
 git remote -v
@@ -121,11 +148,6 @@ git remote show origin
 ```
 
 ## git reset
-```bash
-
-```
-
-## git rebase
 ```bash
 
 ```

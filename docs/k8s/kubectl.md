@@ -4,15 +4,6 @@ sidebar_position: 2
 
 # kubectl
 
-## kubectl config
-Чтобы убедиться, что файл `kubeconfig` обновлен правильно, вы можете перечислить доступные контексты:
-```bash
-kubectl config get-contexts
-```
-Чтобы перейти на необходимый контекст:
-```bash
-kubectl config use-context
-```
 ## kubectl get nodes
 ```bash
 kubectl get nodes
@@ -37,11 +28,15 @@ kubectl get svc
 kubectl get events
 ```
 
-## kubectl describe svc
+## kubectl describe
 ```bash
 kubectl describe svc <service-name> -n <namespace>
 ```
-## kubectl describe pod
+- Verify the Updated DaemonSet
+```bash
+kubectl describe daemonset cadvisor -n utils
+```
+
 ```bash
 kubectl describe pod
 ```
@@ -86,4 +81,10 @@ kubectl top node
 ## kubectl top pod
 ```bash
 kubectl top pod
+```
+
+## kubectl edit
+- Manually Edit the DaemonSet (if necessary)
+```bash
+kubectl edit daemonset cadvisor -n utils
 ```

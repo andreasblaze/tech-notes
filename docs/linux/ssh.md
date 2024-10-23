@@ -2,6 +2,11 @@
 sidebar_position: 3
 ---
 # SSH
+Самый простой способ зайти на сервер:
+```bash
+ssh andriibondariev@10.20.100.200
+```
+Чуть по-сложнее:
 ```bash
 ssh -l andriibondariev@prod.example.com 10.20.100.200
 ```
@@ -48,6 +53,18 @@ cat /c/Users/AndreasDesktop/.ssh/example.pub
 ```bash
 eval $(ssh-agent -s)
 ```
+:::info
+На Windows это выглядит так:
+```ps
+Get-Service ssh-agent | Set-Service -StartupType Manual
+```
+```ps
+Start-Service ssh-agent
+```
+```ps
+ssh-add C:\path\to\your\ssh\private\key
+```
+:::
 
 Список ключей агента SSH:
 ```bash
