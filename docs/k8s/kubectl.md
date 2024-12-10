@@ -4,47 +4,28 @@ sidebar_position: 2
 
 # kubectl
 
-## kubectl get nodes
+## kubectl get
 ```bash
 kubectl get nodes
 ```
-## kubectl get pods
+OR
 ```bash
-kubectl get pods --all-namespaces
+kubectl get pods/deployments/svc/events/networkpolicy -n <namespace> #OR --all-namespaces
 ```
+Get a list of items in JSON:
 ```bash
-kubectl get pods -n <namespace>
-```
-## kubectl get services
-```bash
-kubectl get svc -n <namespace>
-```
-## kubectl get svc
-```bash
-kubectl get svc
-```
-## kubectl get events
-```bash
-kubectl get events
+kubectl get deployments/daemonset/sts -n sre-monitoring -o json | jq '.items[].spec.template.spec.containers[] | {name: .name, requests: .resources.requests, limits: .resources.limits}'
 ```
 
 ## kubectl describe
 ```bash
-kubectl describe svc <service-name> -n <namespace>
+kubectl describe pod/svc <service-name> -n <namespace>
 ```
 - Verify the Updated DaemonSet
 ```bash
 kubectl describe daemonset cadvisor -n utils
 ```
 
-```bash
-kubectl describe pod
-```
-
-## kubectl get networkpolicy
-```bash
-kubectl get networkpolicy -n <namespace>
-```
 ## kubectl logs
 ```bash
 kubectl logs <pod-name> -n <namespace>
@@ -61,11 +42,13 @@ Filter Logs for Errors:
 ```bash
 kubectl logs <pod-name> -n <namespace> | grep -i error
 ```
+
 ## kubectl exec
 Exec into the Pod:
 ```bash
 kubectl exec -it <pod-name> -n <namespace> -- /bin/bash
 ```
+
 ## kubectl apply
 ```bash
 kubectl apply -f <policy-file>.yaml
@@ -73,14 +56,13 @@ kubectl apply -f <policy-file>.yaml
 ```bash
 
 ```
-## kubectl top node
-```bash
-kubectl top node
-```
 
-## kubectl top pod
+## kubectl top
 ```bash
-kubectl top pod
+kubectl top <node-name>
+```
+```bash
+kubectl top <pod-name> -n <namespace> #can be used with --containers
 ```
 
 ## kubectl edit

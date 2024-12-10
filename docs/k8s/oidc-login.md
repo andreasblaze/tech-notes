@@ -1,3 +1,8 @@
+---
+sidebar_position: 4
+---
+# OIDC Plugin
+
 ## Step 1: Install krew
 ```bash
 (
