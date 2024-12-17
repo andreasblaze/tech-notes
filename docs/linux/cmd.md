@@ -100,14 +100,21 @@ find / -type f -name '*_workers.rb'
 
 ```
 ### cp
+How it looks like:
 ```bash
-
+cp [...file/directory-sources] [destination]
 ```
+How to copy all txt files:
 ```bash
-
+cp ./<directory-1>/*.txt ./<directory-2>
 ```
+How to copy 2 files to another directory:
 ```bash
-
+cp ./<directory-1>/<file-1.txt> ./<directory-1>/<file-2.txt> ./<directory-2>
+```
+To copy directories:
+```bash
+cp -r ./<directory-1>/ ./<directory-2>
 ```
 ### mv
 ```bash
