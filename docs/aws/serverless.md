@@ -16,7 +16,7 @@ sidebar_position: 14
 
 
 ## Lambda
-Infra fully managed by AWS. Можно использовать со всем спектром AWS сервисов. Интегрировано множество языков программирования: Node.js, Python, Java, C# (.NET Core)/Powershell, Ruby, Rust, Golang. 
+Infra fully managed by AWS. Можно использовать со всем спектром AWS сервисов. Интегрировано множество языков программирования: `Node.js`, `Python`, `Java`, `C#` (.NET Core)/Powershell, `Ruby`, `Rust`, `Golang`. 
 
 *Free tier of `1,000,000` AWS Lambda requests and `400,000GBs` of compute time.*
 
@@ -120,6 +120,9 @@ A fully managed, highly available caching service built for Amazon DynamoDB. DAX
 
 ### DynamoDB Streams
 Это упорядоченная по времени последовательность событий, которая записывает все изменения для таблиц **DynamoDB** в режиме, близком к реальному времени. Подобно захвату данных об изменениях, потоки **DynamoDB** состоят из нескольких событий `Insert`, `Update` и `Delete`. Каждая запись имеет уникальный порядковый номер, который используется для упорядочивания.
+:::info
+**DynamoDB Streams** enable DynamoDB to get a changelog and use that changelog to replicate data across replica tables in other AWS Regions.
+:::
 
 ### DynamoDB Streams vs Kinesis Streams
 **Kinesis Data Analytics** предоставляет мощные возможности обработки и анализа данных в реальном времени. Больше ретеншн (год), меньше лимитов. 

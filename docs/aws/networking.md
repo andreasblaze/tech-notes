@@ -4,7 +4,22 @@ sidebar_position: 4
 
 # Networking
 
-## EIP | ENI | EBS | VPC
+## SG | EIP | ENI | EBS | VPC
+
+## Security Group
+**Security Group** действует как виртуальный фаерволл для Amazon EC2 instances, AWS Lambda, AWS Elastic Load Balancing и контролирует входящий и исходящий трафик. При запуске инстанса вы можете указать одну или несколько **Security Groups**. Одна **Security Group** может применяться к разным инстансам. **Security Group** прикреплена к одному региону и одной **VPC**.
+> "Timeout" - **Security Group** Issue.
+
+> "Connection refused" - Application Issue.
+
+**Security Group** регулирует:
+- Доступ к портам (**Ports**);
+- **IP** ренжи (IPv4 & IPv6);
+- Входящие (**Inbound** or **ingress**) правила контролируют входящий трафик к вашему инстансу (кому и как можно пользоваться инстансом), а исходящие (**Outbound** or **egress**) правила — исходящий трафик из вашего инстанса (кому и как инстанс что-то передает).
+:::info
+**Security Groups** can not be attached to **SQS** queues.
+**Security Groups** can not point to **SQS** queues.
+:::
 
 ## Elastic IP & Private/Public
 1. **Public** (global) **IP** имеют доступ в Интернет, глобальную сеть - всегда уникальный адрес;
