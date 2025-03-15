@@ -47,7 +47,7 @@ import TabItem from '@theme/TabItem';
     <p><b>405 Method Not Allowed</b></p>
     <p><b>406 Not Acceptable</b></p>
     <p><b>407 Proxy Authentication Required</b></p>
-    <p><b>408 Request Timeout</b></p>
+    <p><b>408 Request Timeout</b>: время ожидания сервером передачи от клиента истекло. Клиент может повторить аналогичный предыдущему запрос в любое время.</p>
     <p><b>409 Conflict</b></p>
     <p><b>410 Gone</b></p>
     <p><b>411 Length Required</b></p>
@@ -69,7 +69,7 @@ import TabItem from '@theme/TabItem';
     <p><b>431 Request Header Fields Too Large</b></p>
     <p><b>449 Retry With</b></p>
     <p><b>451 Unavailable For Legal Reasons</b></p>
-    <p><b>499 Client Closed Request</b></p>
+    <p><b>499 Client Closed Request</b>: HTTP 499 in Nginx means that the client closed the connection before the server answered the request. In my experience is usually caused by client side timeout.</p>
   </TabItem>
   <TabItem value="5xx" label="Server 5xx">
     <p><b>500 Internal Server Error</b></p>
