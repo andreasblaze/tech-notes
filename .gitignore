@@ -21,3 +21,5 @@ yarn-error.log*
 
 deploy_key
 deploy_key.pub
+
+.env
