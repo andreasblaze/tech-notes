@@ -42,6 +42,18 @@ const name = 'John Doe';
 console.log(name);
 ```
 
+Collapsible Sections
+
+<details>
+  <summary>Click me to toggle</summary>
+
+  This is hidden by default.
+
+  ```js
+  console.log('hidden code block');
+  ```
+</details>
+
 This is a table.
 
 | Name     | Age |

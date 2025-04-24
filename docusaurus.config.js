@@ -43,6 +43,8 @@ const config = {
         docs: {
           routeBasePath: '/',
           sidebarPath: './sidebars.js',
+          sidebarCollapsible: true, // allows categories to collapse
+          //sidebarCollapsed: false,  // keep categories expanded by default
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           /*
@@ -72,6 +74,12 @@ const config = {
     ({
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
+      docs: {
+        sidebar: {
+          hideable: true,             // adds the “Collapse sidebar” << button
+          autoCollapseCategories: true, // collapses other open categories when one expands
+        },
+      },
       navbar: {
         title: 'tech-notes',
         /*
