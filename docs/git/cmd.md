@@ -3,6 +3,14 @@ sidebar_position: 1
 ---
 # CMD
 
+## git config
+```bash
+git config --global user.name "Your Name"
+```
+```bash
+git config --global user.email "your.email@example.com"
+```
+
 ## Переименование коммитов
 ### amend
 Если вам нужно изменить только последнее сообщение коммита:
@@ -131,9 +139,13 @@ git remote show origin
 
 ```
 
-## git revert 
+## git revert
+This creates a new commit that undoes the changes from the problematic commit(s), preserving your history:
 ```bash
-
+git revert <commit-hash>
+```
+```bash
+git push origin master
 ```
 
 ## git diff
@@ -142,13 +154,29 @@ git remote show origin
 ```
 
 ## git log
+Use the Git log to find the commit hash of the last stable state:
 ```bash
-
+git log --oneline
 ```
 
 ## git stash
+If you just want to switch branches without committing:
 ```bash
-
+git stash
+```
+```bash
+git checkout master
+```
+Later, you can bring the changes back with:
+```bash
+git stash pop
+```
+Only if you're sure you don't need the changes anymore:
+```bash
+git restore <path-to-file-1> <path-to-file-2>
+```
+```bash
+git checkout master
 ```
 
 ## git status
@@ -156,7 +184,48 @@ git remote show origin
 
 ```
 
-## git reset
+## git tag
+To make rolling back easier in the future, consider tagging stable commits:
 ```bash
+git tag -a stable -m "Stable version of Alertmanager config"
+```
+```bash
+git push origin stable
+```
+```bash
+git reset --hard stable
+```
+```bash
+git push origin master --force
+```
 
+## git checkout
+If you just need to deploy the stable commit temporarily without making changes to master:
+```bash
+git checkout <commit-hash>
+```
+```bash
+git checkout master
+```
+
+## git reset
+Remove the last commit locally:
+```bash
+git reset --hard HEAD~1
+```
+Force push the changes:
+```bash
+git push origin SRE-33572-update-to-use-vault-secrets --force
+```
+
+Use the Git log to find the commit hash of the last stable state:
+```bash
+git log --oneline
+```
+This will completely reset your branch to the specified commit and discard any changes made after it:
+```bash
+git reset --hard <commit-hash>
+```
+```bash
+git push origin master --force
 ```

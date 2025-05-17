@@ -70,3 +70,33 @@ kubectl top <pod-name> -n <namespace> #can be used with --containers
 ```bash
 kubectl edit daemonset cadvisor -n utils
 ```
+
+## kubectl scale
+Stop of a `StatefulSet` work
+```bash
+kubectl scale statefulset <NAME> --replicas=0 -n <NAMESPACE>
+```
+
+## kubectl delete
+Delete PVC
+```bash
+kubectl delete pvc <NAME> -n <NAMESPACE>
+```
+
+## kubectl auth
+Check what you to be able to:
+```bash
+kubectl auth can-i patch statefulset -n <NAMESPACE>
+```
+```bash
+kubectl auth can-i delete pvc -n <NAMESPACE>
+```
+```bash
+kubectl auth can-i get secret -n <NAMESPACE>
+```
+```bash
+kubectl auth can-i get pod -n <NAMESPACE>
+```
+```bash
+kubectl auth can-i create configmap -n <NAMESPACE>
+```
