@@ -342,21 +342,79 @@ usermod -aG docker jenkins
 set +x -eo pipefail node /usr/app/tfrunner/tfrunner.js apply -parallelism=10 tfplan_c357197a7543 2>&1 | tee 1b4e61512783.log
 ```
 
+## System Information in Linux
+### uname
+Behave as though the options -m, -n, -r, -s, and -v were specified:
 ```bash
-
+uname -a
+```
+### uptime & last reboot
+Show how long the system has been running:
+```bash
+uptime
+```
+Show when the last reboot was:
+```bash
+last reboot
+```
+### hostname
+Set or print the name of the current host system:
+```bash
+hostname
+```
+Display all local IP addresses of the host system:
+```bash
+hostname -i
+```
+### date & cal & timedatectl
+Display or set date and time:
+```bash
+date
+```
+Displays a calendar:
+```bash
+cal
+```
+May be used to query and change the system clock and its settings, and enable or disable time synchronization services:
+```bash
+timedatectl
+```
+### whereis & which & whatis
+Checks the standard binary, and manual page directories for the specified programs, printing out the paths of any it finds:
+```bash
+whereis
+```
+Locate a program file in the user’s path:
+```bash
+which
+```
+Display online manual documentation pages:
+```bash
+whatis
+```
+### whoami & finger
+Display effective user id:
+```bash
+whoami
+```
+All logged in users information lookup program:
+```bash
+finger
+```
+Show specific user information:
+```bash
+finger <username>
+```
+### df & free
+Display free disk space:
+```bash
+df
+```
+Memory allocation:
+```bash
+free
 ```
 
-```bash
-
-```
-
-```bash
-
-```
-
-```bash
-
-```
 ## Process management:
 
 ### &&
