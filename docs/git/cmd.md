@@ -159,19 +159,32 @@ Use the Git log to find the commit hash of the last stable state:
 git log --oneline
 ```
 
-## git stash
-If you just want to switch branches without committing:
+## Незакоммиченные изменения
+Либо коммитить
+```bash
+git add
+```
++
+```bash
+git commit
+```
+```bash
+git checkout
+```
+либо:
+### git stash
+Переключить ветки без фиксации изменений (коммита):
 ```bash
 git stash
 ```
 ```bash
 git checkout master
 ```
-Later, you can bring the changes back with:
+Позже можно вернуть изменения с помощью:
 ```bash
 git stash pop
 ```
-Only if you're sure you don't need the changes anymore:
+Если мы хотим отказаться от изменений и вернуть файлам исходное состояние:
 ```bash
 git restore <path-to-file-1> <path-to-file-2>
 ```

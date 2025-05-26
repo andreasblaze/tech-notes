@@ -47,6 +47,12 @@ source ~/.bashrc
 ```bash
 aws --version
 ```
+### The config profile could not be found  
+**AWS CLI** не може знайти профіль, тобто не існує запису в `~/.aws/config` або `~/.aws/credentials`
+Якшо десь він є, то можна скопіювати з іншого хаста:
+```bash
+scp -r ~/.aws root@<dest-ip>:~/
+```
 
 ## SSO
 ```bash
