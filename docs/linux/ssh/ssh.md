@@ -80,6 +80,28 @@ ssh-add /c/Users/AndreasDesktop/.ssh/example
 ```bash
 ssh -T git@git.example.net
 ```
+## UNPROTECTED PRIVATE KEY FILE
+Only the owner can `read` the file (most secure):
+```bash
+chmod 400 /mnt/c/Users/AndreasDesktop/.ssh/example
+```
+Owner can `read` and `write` (also acceptable):
+```bash
+chmod 600 /mnt/c/Users/AndreasDesktop/.ssh/example
+```
+:::caution
+If you're running this on **WSL** (Windows Subsystem for Linux) or **Git Bash** on Windows, where permission changes via `chmod` might not fully apply due to the underlying **NTFS** file system.
+```bash
+cp /mnt/c/Users/AndreasDesktop/.ssh/namecheap ~/.ssh/
+```
+```bash
+chmod 400 ~/.ssh/namecheap
+```
+```bash
+ssh-add ~/.ssh/namecheap
+```
+Files in `/mnt/c/...` are controlled by Windows, and Windows ignores Unix-style permissions like `chmod 400`.
+:::
 ## Script Timeout and Disconnection
 
 The message "client_loop: send disconnect: Broken pipe" typically indicates that the SSH connection to your server is timing out while your script is still running. This often happens with long-running processes in environments where there's a timeout on idle SSH connections.

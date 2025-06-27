@@ -99,6 +99,11 @@ git remote show origin
 ```
 > Эта команда показывает подробную информацию о конкретном удаленном репозитории.
 
+### git clone-remote issue
+Если ранее репозиторий был склонирован путем `https`, а сейчас требует `ssh`:
+```bash
+git remote set-url origin <repo_url>
+```
 ## git branch
 ```bash
 
