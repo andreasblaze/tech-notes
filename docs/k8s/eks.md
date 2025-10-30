@@ -15,5 +15,16 @@ aws configure sso
 ```
 Export creds from AWS
 ```bash
-aws eks update-kubeconfig --region <region> --name <cluster-name> --profile <profile-name> #`--profile` to resolve Lens issue
+aws eks update-kubeconfig --region <region> --name <cluster-name> --profile <profile-name>
+```
+
+## Migrate pods from one node to another
+```bash
+kubectl get nodes -o wide
+```
+```bash
+kubectl get nodes -l eks.amazonaws.com/nodegroup=<name>
+```
+```bash
+kubectl cordon -l eks.amazonaws.com/nodegroup=<name>
 ```

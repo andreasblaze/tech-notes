@@ -1,0 +1,399 @@
+```jsx title="Jenkinsfile" showLineNumbers
+@Library(['lib1', 'lib2']) _
+
+String linterToolsDockerImage = 'docker/tools/linter-tools:1.0.0'
+
+String ansibleDockerImage = 'docker/tools/ansible:9.3.0'
+String ansiblerDir = 'ansible'
+String ansibleInventoryPath = 'inventory.yml'
+
+String bitbucketAccessKeyVaultPath = 'secret/ssh'
+String bitbucketAccessKeyVaultKey = 'jenkins_ro'
+
+Integer vaultEngineVersion = 2
+Integer bitbucketVaultEngineVersion = 2
+
+String flockTokenVaultPath = 'secret/flock'
+
+pipeline {
+    agent {
+        node {
+            label '01'
+        }
+    }
+    parameters {
+        choice(
+            name: 'STAGES_TO_RUN',
+            choices: 'None\nConfigure DB nodes\nConfigure web nodes\nConfigure server nodes\nConfigure proxy\nRun Ansible',
+            description: 'Select the stages to run'
+        )
+    }
+    environment {
+        DB_REPLICATOR = credentials('zabbixreplicator')
+        POSTGRES_PASSWORD = "${env.POSTGRES_PASSWORD}"
+        MYSQL_ROOT_PASSWORD = "${env.MYSQL_ROOT_PASSWORD}"
+    }
+    stages {
+        stage('Linters') {
+            when {
+                beforeAgent true
+                expression { !triggeredByMaster() }
+            }
+            agent {
+                docker {
+                    image linterToolsDockerImage
+                    reuseNode true
+                }
+            }
+            steps {
+                sh('yamllint .')
+                sh('ec')
+            }
+            post {
+                failure {
+                    sendPRComment(
+                        comment: 'Linting errors found.\nPlease refer to the build link above for details.'
+                    )
+                }
+            }
+        }
+
+        stage('Initial Setup') {
+            steps {
+                deleteDir()
+                checkout scm
+                echo "Work directory is set to: ${env.WORKSPACE}"
+            }
+        }
+
+        stage('Check Stage Selection') {
+            when {
+                expression {
+                    return params.STAGES_TO_RUN == 'None'
+                }
+            }
+            steps {
+                echo "No stages have been selected for execution. Please select the necessary stages to run."
+            }
+        }
+
+        stage('Configure DB nodes') {
+            when {
+                expression {
+                    return params.STAGES_TO_RUN.contains('Configure DB nodes')
+                }
+            }
+            steps {
+                script {
+                    withVault(vaultSecrets: [
+                        [
+                            path: 'secret-v2/sre/Zabbix',
+                            engineVersion: 2,
+                            secretValues: [
+                                [vaultKey: 'POSTGRES_PASSWORD']
+                            ]
+                        ]
+                    ]) {
+
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@110.20.100.200 "sudo apt-get install ntp -y && ntpq -p && sudo systemctl stop ntp && sudo ntpd -gq && sudo systemctl restart ntp && date"'
+                        sh 'scp -r -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa ${WORKSPACE} jenkins@110.20.100.200:/home/jenkins/workspace'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@110.20.100.200 "export POSTGRES_PASSWORD=\$POSTGRES_PASSWORD && docker compose -f /home/jenkins/workspace/DBM01.yaml up -d --build --remove-orphans"'
+
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.134.204 "sudo apt-get install ntp -y && ntpq -p && sudo systemctl stop ntp && sudo ntpd -gq && sudo systemctl restart ntp && date"'
+                        sh 'scp -r -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa ${WORKSPACE} jenkins@10.20.134.204:/home/jenkins/workspace'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.134.204 "export POSTGRES_PASSWORD=\$POSTGRES_PASSWORD && docker compose -f /home/jenkins/workspace/DBS01.yaml up -d --build --remove-orphans"'
+
+
+                    }
+                }
+            }
+        }
+
+        stage('Configure web nodes') {
+            when {
+                expression {
+                    return params.STAGES_TO_RUN.contains('Configure web nodes')
+                }
+            }
+            steps {
+                script {
+                    withVault(vaultSecrets: [
+                        [
+                            path: 'secret-v2/sre/Zabbix',
+                            engineVersion: 2,
+                            secretValues: [
+                                [vaultKey: 'POSTGRES_PASSWORD'],
+                                [vaultKey: 'idp_crt'],
+                                [vaultKey: 'sp_crt'],
+                                [vaultKey: 'sp_key']
+                            ]
+                        ]
+                    ]) {
+    writeFile file: 'idp.crt', text: env.idp_crt
+    writeFile file: 'sp.crt', text: env.sp_crt
+    writeFile file: 'sp.key', text: env.sp_key
+    sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo apt-get install ntp -y && ntpq -p && sudo systemctl stop ntp && sudo ntpd -gq && sudo systemctl restart ntp && date"'
+    sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo rm -rf /home/jenkins/workspace"'
+    sh 'scp -r -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa ${WORKSPACE} jenkins@10.20.100.200:/home/jenkins/workspace'
+    sh 'scp -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa idp.crt jenkins@10.20.100.200:/home/jenkins/workspace/zbx_env/.ZBX_IDP_CERT'
+    sh 'scp -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa sp.crt jenkins@10.20.100.200:/home/jenkins/workspace/zbx_env/.ZBX_SP_CERT'
+    sh 'scp -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa sp.key jenkins@10.20.100.200:/home/jenkins/workspace/zbx_env/.ZBX_SP_KEY'
+    sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo service docker restart"'
+    sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "export POSTGRES_PASSWORD=\$POSTGRES_PASSWORD && docker compose -f /home/jenkins/workspace/web.yaml up -d --build --remove-orphans"'
+    sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 \
+                             "docker exec -i -u root zabbix-web apt-get update && \
+                              docker exec -i -u root zabbix-web apt-get install -y ldap-utils && \
+                              docker exec -i -u root zabbix-web update-ca-certificates"'
+
+    sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo apt-get install ntp -y && ntpq -p && sudo systemctl stop ntp && sudo ntpd -gq && sudo systemctl restart ntp && date"'
+    sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo rm -rf /home/jenkins/workspace"'
+    sh 'scp -r -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa ${WORKSPACE} jenkins@10.20.100.200:/home/jenkins/workspace'
+    sh 'scp -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa idp.crt jenkins@10.20.100.200:/home/jenkins/workspace/zbx_env/.ZBX_IDP_CERT'
+    sh 'scp -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa sp.crt jenkins@10.20.100.200:/home/jenkins/workspace/zbx_env/.ZBX_SP_CERT'
+    sh 'scp -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa sp.key jenkins@10.20.100.200:/home/jenkins/workspace/zbx_env/.ZBX_SP_KEY'
+    sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo service docker restart"'
+    sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "export POSTGRES_PASSWORD=\$POSTGRES_PASSWORD && docker compose -f /home/jenkins/workspace/web.yaml up -d --build --remove-orphans"'
+    sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 \
+                             "docker exec -i -u root zabbix-web apt-get update && \
+                              docker exec -i -u root zabbix-web apt-get install -y ldap-utils && \
+                              docker exec -i -u root zabbix-web update-ca-certificates"'
+
+}
+
+                }
+            }
+        }
+
+        stage('Configure server nodes') {
+            when {
+                expression {
+                    return params.STAGES_TO_RUN.contains('Configure server nodes')
+                }
+            }
+            steps {
+                script {
+                    withVault(vaultSecrets: [
+                        [
+                            path: 'secret-v2/sre/Zabbix',
+                            engineVersion: 2,
+                            secretValues: [
+                                [vaultKey: 'POSTGRES_PASSWORD']
+                            ]
+                        ]
+                    ]) {
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo rm -rf /home/jenkins/workspace"'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo apt-get install ntp -y && ntpq -p && sudo systemctl stop ntp && sudo ntpd -gq && sudo systemctl restart ntp && date"'
+                        sh 'scp -r -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa ${WORKSPACE} jenkins@10.20.100.200:/home/jenkins/workspace'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo chmod -R 777 /home/jenkins/workspace/zbx_env/usr/lib/zabbix/alertscripts"'
+                        sh 'ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no jenkins@10.20.100.200 sed -i "s/ZBX_HANODENAME=hwzabbix/ZBX_HANODENAME=NODEM01/g" /home/jenkins/workspace/env_vars/.env_srv'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo service docker restart"'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "export POSTGRES_PASSWORD=\$POSTGRES_PASSWORD && docker rm -f zabbix-node && docker compose -f /home/jenkins/workspace/NODEM01.yaml up -d --build --remove-orphans"'
+                        //sleep 15
+                        //sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 \
+                        //     "docker exec -i -u root zabbix-node apt-get update && \
+                        //      docker exec -i -u root zabbix-node apt-get install -y curl"'
+
+
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.134.225 "sudo rm -rf /home/jenkins/workspace"'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.134.225 "sudo apt-get install ntp -y && ntpq -p && sudo systemctl stop ntp && sudo ntpd -gq && sudo systemctl restart ntp && date"'
+                        sh 'scp -r -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa ${WORKSPACE} jenkins@10.20.134.225:/home/jenkins/workspace'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.134.225 "sudo chmod -R 777 /home/jenkins/workspace/zbx_env/usr/lib/zabbix/alertscripts"'
+                        sh 'ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no jenkins@10.20.134.225 sed -i "s/ZBX_HANODENAME=hwzabbix/ZBX_HANODENAME=NODES01/g" /home/jenkins/workspace/env_vars/.env_srv'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.134.225 "sudo service docker restart"'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.134.225 "export POSTGRES_PASSWORD=\$POSTGRES_PASSWORD && docker rm -f zabbix-node && docker compose -f /home/jenkins/workspace/NODES01.yaml up -d --build --remove-orphans"'
+                        //sleep 15
+                        //sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.134.225 \
+                        //     "docker exec -i -u root zabbix-node apt-get update && \
+                        //      docker exec -i -u root zabbix-node apt-get install -y curl"'
+                    }
+                }
+            }
+        }
+        
+        stage('Configure proxy') {
+            when {
+                expression {
+                    return params.STAGES_TO_RUN.contains('Configure proxy')
+                }
+            }
+            steps {
+                script {
+                    withVault(vaultSecrets: [
+                        [
+                            path: 'secret-v2/sre/Zabbix',
+                            engineVersion: 2,
+                            secretValues: [
+                                [vaultKey: 'POSTGRES_PASSWORD'],
+                                [vaultKey: 'PSK']
+                            ]
+                        ]
+                    ]) {
+                        writeFile file: 'psk_key.psk', text: env.PSK
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo apt-get install ntp -y && ntpq -p && sudo systemctl stop ntp && sudo ntpd -gq && sudo systemctl restart ntp && date"'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo rm -rf /home/jenkins/workspace"'
+                        sh 'scp -r -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa ${WORKSPACE} jenkins@10.20.100.200:/home/jenkins/workspace'
+                        sh 'scp -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa psk_key.psk jenkins@10.20.100.200:/home/jenkins/workspace/zbx_env/var/lib/zabbix/psk_key.psk'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "export POSTGRES_PASSWORD=\$POSTGRES_PASSWORD && docker rm -f proxy && docker compose -f /home/jenkins/workspace/proxy.yaml up -d --build --remove-orphans"'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 \
+                             "docker exec -i -u root proxy apt-get update && \
+                              docker exec -i -u root proxy apt-get install -y mc && \
+                              docker exec -i -u root proxy apt-get install -y dnsutils && \
+                              docker exec -i -u root proxy apt-get install -y python3 && \
+                              docker exec -i -u root proxy apt-get install -y python3-pip && \
+                              docker exec -i -u root proxy apt-get install -y python3-requests && \
+                              docker exec -i -u root proxy apt-get install -y python3-decouple && \
+                              docker exec -i -u root proxy apt-get install -y python3-ldap && \
+                              docker exec -i -u root proxy apt-get install -y python3-pyzabbix && \
+                              docker exec -i -u root proxy apt-get install -y curl && \
+                              docker exec -i -u root proxy apt-get install -y python3-boto3 && \
+                              docker exec -i -u root proxy apt-get install -y ldap-utils && \
+                              docker exec -i -u root proxy apt-get install -y python3-jinja2 && \
+                              docker exec -i -u root proxy apt-get install -y python3-yaml && \
+                              docker exec -i -u root proxy apt-get install -y mtr && \
+                              docker exec -i -u root proxy apt-get install -y jq && \
+                              docker exec -i -u root proxy apt-get install -y python3-ldap3 && \
+                              docker exec -i -u root proxy env DEBIAN_FRONTEND=noninteractive apt-get install -y libldap-common && \
+                              docker exec -i -u root proxy dpkg --force-confold --configure -a"'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "sudo chmod -R 777 /home/jenkins/workspace/zbx_env/usr/lib/zabbix/externalscripts"'
+                        sh 'ssh -o StrictHostKeyChecking=no -i /home/jenkins/.ssh/id_rsa jenkins@10.20.100.200 "docker exec -i -u root proxy wget -P /etc/ssl/certs http://pki.net/ica.pem && docker exec -i -u root proxy wget -P /etc/ssl/certs http://pki.net/rca.pem && docker exec -i -u root proxy cp /etc/ssl/ceica.pem /usr/local/share/ca-certificates/ && docker exec -i -u root proxy cp /etc/ssl/cerca.pem /usr/local/share/ca-certificates/ && docker exec -i -u root proxy update-ca-certificates"'
+                        }
+                }
+            }
+        }
+
+        stage('Fetch ClamAV flock token from Vault') {
+            when {
+                expression {
+                    return params.STAGES_TO_RUN.contains('Run Ansible')
+                }
+            }
+            steps {
+                script {
+                    withVault([vaultSecrets: [
+                        [
+                            path: 'secret-v2/sre/allenv/flock/clamscan',
+                            engineVersion: 2,
+                            secretValues: [
+                                [vaultKey: 'clamav_token', envVar: 'CLAMAV_FLOCK_TOKEN']
+                            ]
+                        ]
+                    ]]) {
+                        env.CLAMAV_FLOCK_TOKEN = CLAMAV_FLOCK_TOKEN
+                    }
+                }
+            }
+        }
+
+        stage('Installing Ansible roles') {
+            when {
+                expression {
+                    return params.STAGES_TO_RUN.contains('Run Ansible')
+                }
+            }
+            environment {
+                ANSIBLE_LOCAL_TEMP = "${env.WORKSPACE}/.ansible"
+            }
+            agent {
+                docker {
+                    image ansibleDockerImage
+                    reuseNode true
+                }
+            }
+            steps {
+                withBitbucketSSH(
+                    bitbucketAccessKeyVaultPath: bitbucketAccessKeyVaultPath,
+                    bitbucketAccessKeyVaultKey: bitbucketAccessKeyVaultKey,
+                    vaultEngineVersion: bitbucketVaultEngineVersion,
+                    callback: {
+                        dir(ansiblerDir) {
+                            sh('ansible-galaxy install -p playbooks/roles -r requirements.yml')
+                        }
+                    }
+                )
+            }
+        }
+
+        stage('Prepare SSH key for Ansible') {
+            when {
+                expression {
+                    return params.STAGES_TO_RUN.contains('Run Ansible')
+                }
+            }
+            steps {
+                sh "install -m 600 /home/jenkins/.ssh/id_rsa ${WORKSPACE}/jenkins_id_rsa"
+            }
+        }
+
+        stage('Execute Ansible Playbook') {
+            when {
+                expression {
+                    return params.STAGES_TO_RUN.contains('Run Ansible')
+                }
+            }
+            agent {
+                docker {
+                    image ansibleDockerImage
+                    reuseNode true
+                }
+            }
+            steps {
+                script {
+                    dir(ansiblerDir) {
+                      sh("""
+                        ansible-playbook -i ${ansibleInventoryPath} \
+                          --private-key ../jenkins_id_rsa \
+                          -u jenkins \
+                          -b \
+                          playbooks/main.yml \
+                          -e 'WORKSPACE=${WORKSPACE}' \
+                          -e 'clamav_token=${env.CLAMAV_FLOCK_TOKEN}'
+                      """)
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                if (triggeredByMaster()) {
+                    flockSend(
+                        tokenVaultPath: flockTokenVaultPath,
+                        vaultEngineVersion: vaultEngineVersion,
+                        message: 'zabbix_hw deployment has been finished successfully.',
+                        severity: 'INFO'
+                    )
+                }
+            }
+        }
+        failure {
+            script {
+                if (triggeredByMaster()) {
+                    flockSend(
+                        tokenVaultPath: flockTokenVaultPath,
+                        vaultEngineVersion: vaultEngineVersion,
+                        message: 'deployment failed, please refer to the build link above for more details and troubleshooting.',
+                        severity: 'ERROR'
+                    )
+                }
+            }
+        }
+        aborted {
+            script {
+                if (triggeredByMaster()) {
+                    flockSend(
+                        tokenVaultPath: flockTokenVaultPath,
+                        vaultEngineVersion: vaultEngineVersion,
+                        message: 'deployment is aborted.',
+                        severity: 'WARNING'
+                    )
+                }
+            }
+        }
+        always {
+            deleteDir()
+        }
+    }
+}
+```

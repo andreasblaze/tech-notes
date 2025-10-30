@@ -37,6 +37,10 @@ git rebase --continue
 ```bash
 git push --force-with-lease
 ```
+## Undo a commit
+```bash
+git reset HEAD~
+```
 
 ## Git Squash
 Это прием, который помогает взять серию коммитов и уплотнить ее. 
