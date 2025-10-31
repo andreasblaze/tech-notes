@@ -25,7 +25,7 @@ Fetch and install all required Ansible roles from the *requirements.yml* file be
 ```bash
 ansible-galaxy install -p playbooks/roles -r requirements.yml
 ```
-- `ANSIBLE_LOCAL_TEMP` is set to *${WORKSPACE}/.ansible* to define a temporary working directory for Ansible operations.
+- `ANSIBLE_LOCAL_TEMP` is set to *$[WORKSPACE]/.ansible* to define a temporary working directory for Ansible operations.
 > Ensures all required roles are locally available in *playbooks/roles/* before any playbook execution.
 ## Prepare SSH Key for Ansible
 Make a Jenkins SSH private key available for Ansible to establish SSH connections with managed nodes.
