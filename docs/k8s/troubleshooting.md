@@ -66,3 +66,6 @@ spec:
 ```
 
 З приводу де буде піднята наступна репліка при автоскейлі, в нас налаштований под анті афініті, тобто дві репліки одного MSS не повинні піднятися на одній k8s ноді, а далі все вирішує scheduler, по наявним ресурсам на рівні кластеру.
+
+## PVC
+[Handling PVC Deletion in StatefulSets: A Step-by-Step Recovery Guide](https://medium.com/@upadhyaynitesh11/handling-pvc-deletion-in-statefulsets-a-step-by-step-recovery-guide-86026e4ce2ff)

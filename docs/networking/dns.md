@@ -80,7 +80,7 @@ sidebar_position: 2
 Обычно **PTR** используют при:
 
 - **Anti-spam**: Некоторые фильтры защиты от спама электронной почты используют обратный DNS для проверки доменных имен адресов электронной почты и определения вероятности использования связанных IP-адресов законными серверами электронной почты.
-- T**roubleshooting email delivery issues**: Поскольку фильтры защиты от спама выполняют эти проверки, проблемы с доставкой электронной почты могут возникнуть из-за неправильной настройки или отсутствия записи PTR. Если в домене нет записи PTR или если запись PTR содержит неправильный домен, службы электронной почты могут блокировать все электронные письма из этого домена.
+- **Troubleshooting email delivery issues**: Поскольку фильтры защиты от спама выполняют эти проверки, проблемы с доставкой электронной почты могут возникнуть из-за неправильной настройки или отсутствия записи PTR. Если в домене нет записи PTR или если запись PTR содержит неправильный домен, службы электронной почты могут блокировать все электронные письма из этого домена.
 - **Logging**: Системные журналы обычно записывают только IP-адреса; обратный поиск DNS может преобразовать их в доменные имена для журналов, которые более удобны для чтения человеком.
 ### SOA
 Запись DNS *Start Of Authority* (**SOA**) хранит важную информацию о домене или зоне, такую как адрес электронной почты администратора, время последнего обновления домена и время ожидания сервера между обновлениями.
@@ -121,3 +121,26 @@ sidebar_position: 2
 | ----------- | ------------ | ------ | --- |
 |      @      | TXT | This is an awesome domain! Definitely not spammy. | 32600 |
 > Сегодня двумя наиболее важными вариантами использования записей **DNS TXT** являются предотвращение спама в электронной почте и проверка владения доменом, хотя записи TXT изначально не предназначались для этих целей.
+
+## Difference between Subdomain, **hostname**, host and www in a DNS system
+
+
+Basically, "domain" and "subdomain" are the same entities, except that the "sub" prefix indicates a relationship between two domains. So you can basically talk of a "subdomain" only in relationship to another domain. For example google.com and corp.google.com both are domains, but corp.google.com is a subdomain of google.com. google.com itself is also a subdomain, a subdomain of top level domain (TLD) com.
+
+TLDs are the only domains that you can't talk of as "subdomains", because they don't have any higher-level domain above them.
+
+It's similar to how a file system on a computer is organized: /usr and /usr/bin are both folders, but /usr/bin is a subfolder of /usr. /usr is a subfolder of the root folder (/). The root folder is the only folder that isn't a subfolder of anything.
+
+Technically, any domain should have one or more `NS` records in the DNS, specifying the name server(s) serving that domain. It is possible to define a domain without it's own `NS` record, but this is considered trickery. One shouldn't set up DNS like that.
+
+**Hostname** - as said in the other answer - is just an individual name assigned to a computer. If you combine **hostname** with domain, you get a *Fully Qualified Domain Name* (**FQDN**), that identifies a particular computer in the DNS. Any **FQDN** should translate to an A record in the DNS, specifying the IP address assigned to that **FQDN** (or `AAAA` record in case of IPv6 addresses).
+
+One computer can have multiple **hostname**s and/or multiple **FQDN**s (even in different domains) which may be assigned either to the same IP address or to different IP addresses - this is fully flexible.
+
+For example, ns1.google.com is a **FQDN** of one of the Google's name servers. ns1 is a **hostname** here (we sometimes call it a **hostname** part of the **FQDN**), and google.com is a domain (similarly, a domain part of the **FQDN**).
+
+Note that the domain name itself may also be considered a **FQDN**, especially when the domain itself is also assigned an A record, as it is common nowadays (see below).
+
+www is just a specific **hostname** that is customarily used to identify the main web server for the given domain. So www.google.com is **FQDN** of Google's main web server. It is common nowadays to configure DNS so that the domain itself also has A record that refers to the same IP address that the www **hostname**, so typing for example https://google.com and https://www.google.com brings you to the same website.
+
+Of course **hostname**s/**FQDN**s are not used only for webservers; any computer in the network can have a **hostname**/**FQDN**. For example, Gmail's incoming and outgoing mail servers have **FQDN**S imap.gmail.com and smtp.gmail.com. You don't type these **FQDN**s into the web browser, because there's no web service on these machines; but you use them eg. when configuring your mail client to use Gmail.

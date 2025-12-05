@@ -182,5 +182,55 @@ chmod +x /usr/lib/zabbix/externalscripts/*
 ### Soft links
 
 ## Inodes
+1. A directory contains file names and their corresponding inode numbers.
+2. The inode stores metadata and pointers to the file’s data blocks.
+3. The data blocks contain the actual content of the file.
+[Understanding Inodes in Linux: The Hidden Backbone of Your Filesystem](https://nagarkotideepak9.medium.com/understanding-inodes-in-linux-the-hidden-backbone-of-your-filesystem-8b9b514dd169)
 
+### Running Out of Inodes
+Even if disk space is available, your system might fail to create new files due to inode exhaustion. You’ll see errors like: No space left on device
+
+…despite df -h showing free space.
+
+To check inode usage:
+```bash
+df -i
+```
+### Directories with Millions of Small Files
+
+Too many small files consume inodes quickly, especially in directories like /var, /home, /tmp, or /usr.
+
+Check inode-heavy directories:
+```bash
+for d in /*; do echo -n "$d: "; find "$d" -xdev -type f | wc -l; done | sort -nk2
+```
+
+> I cannot update Ubuntu because I have 99% inode usage. What is the easiest way for me to alleviate this problem?
+
+The number of inodes is set at the time the partition is formatted. Normally the number of inodes created is sufficient for almost any purpose; however, if you have a great number of very small files then you can use up the inodes before the disk is full.
+
+You need to find the many thousands of small files you have on the system that are using up inodes and either delete them, or move them to a partition that has been specifically set up with a very large number of inodes available. It is not possible to change the number of inodes available on a partition after it has been formatted.
+
+#### Display a sorted list of directories by number of inodes, using this command:
+```bash
+du --inodes -d 3 / | sort -n | tail
+```
+From there, you can determine which directories to delete
+
+Or use the script `~/bin/count_em`:
+```bash
+#!/bin/bash
+# count_em - count files in all subdirectories under current directory.
+echo 'echo $(ls -a "$1" | wc -l) $1' >/tmp/count_em_$$
+chmod 700 /tmp/count_em_$$
+find . -mount -type d -print0 | xargs -0 -n1 /tmp/count_em_$$ | sort -n
+rm -f /tmp/count_em_$$
+```
+```bash
+chmod +x ~/bin/count_em
+```
+To run the program you just type:
+```bash
+count_em
+```
 ## Swappiness

@@ -251,3 +251,26 @@ git reset --hard <commit-hash>
 ```bash
 git push origin master --force
 ```
+
+## Undo a commit & redo
+```bash
+# Source - https://stackoverflow.com/a
+# Posted by Esko Luontola, modified by community. See post 'Timeline' for change history
+# Retrieved 2025-12-05, License - CC BY-SA 4.0
+
+$ git commit -m "Something terribly misguided" # (0: Your Accident)
+$ git reset HEAD~                              # (1)
+# === If you just want to undo the commit, stop here! ===
+[ edit files as necessary ]                    # (2)
+$ git add .                                    # (3)
+$ git commit -c ORIG_HEAD                      # (4)
+```
+1. `git reset` is the command responsible for the undo. It will undo your last commit while leaving your working tree (the state of your files on disk) untouched. You'll need to add them again before you can commit them again.
+2. Make corrections to working tree files.
+3. git add anything that you want to include in your new commit.
+4. Commit the changes, reusing the old commit message. reset copied the old head to .git/ORIG_HEAD; commit with -c ORIG_HEAD will open an editor, which initially contains the log message from the old commit and allows you to edit it. If you do not need to edit the message, you could use the -C option.
+
+Alternatively, to edit the previous commit (or just its commit message), commit `--amend` will add changes within the current index to the previous commit.
+
+To remove (not revert) a commit that has been pushed to the server, rewriting history with git push origin main `--force[-with-lease]` is necessary. It's almost always a bad idea to use `--force`; prefer `--force-with-lease` instead, and as noted in the git manual:
+> You should understand the implications of rewriting history if you amend a commit that has already been published.

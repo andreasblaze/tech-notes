@@ -10,7 +10,7 @@ kubectl get nodes
 ```
 OR
 ```bash
-kubectl get pods/deployments/svc/events/networkpolicy -n <namespace> #OR --all-namespaces
+kubectl get pods/deployments/svc/events/networkpolicy/cm -n <namespace> #OR --all-namespaces
 ```
 Get a list of items in JSON:
 ```bash
